@@ -19,7 +19,7 @@ class UsersController extends Controller {
             if(!empty($data['email']) && !empty($data['pass'])){
                 $user = new Users;
                 if ($user->checkCredentials($data['email'], $data['pass'])){
-                    $array['error'] = 'Tudo certo!';
+                    $array['jwt'] = $user->createJwt();
                 } else {
                     $array['error'] = 'Acesso negado!';
                 }
