@@ -33,4 +33,39 @@ class UsersController extends Controller {
         $this->returnJson($array);
     }
 
+    public function new_record(){
+        $array = array('error' => '');
+        
+        $method = $this->getMethod();
+        $data = $this->getRequestData();
+
+        if($method == "POST"){
+            if(!empty($data['name']) && !empty($data['email']) && !empty($data['pass'])){
+                
+                if(filter_var($data['email'], FILTER_VALIDATE_EMAIL)){
+                    $users = new Users();
+
+                    if($users->create($data['name'], $data['email'], $data['pass'])){
+                        $array['jwt'] = $users->createJwt();
+                    } else {
+                        $array['error'] = 'Email já existente';
+                    }
+
+                } else {
+                    $array['error'] = 'E-mail inválido';
+                }
+
+
+            } else {
+                $array['error'] = 'Dados não preenchidos! ';
+            }
+
+        } else {
+            $array['error'] = 'Método de requisição incompatível';
+        }
+        
+        $this->returnJson($array);
+
+    }
+
 }
