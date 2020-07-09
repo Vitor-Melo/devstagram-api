@@ -32,10 +32,10 @@ class Jwt extends Model {
         if(count($jwt_splits) == 3){
             $signature = hash_hmac("sha256", $jwt_splits[0].".".$jwt_splits[1], $config['jwt_secret_key'],
             true);
-            $bsig = $this->base64_encode($signature);
+            $bsig = $this->base64url_encode($signature);
             
             if($bsig == $jwt_splits[2]){
-                $array = json_decode($this->base64_decode($jwt_splits[1]));
+                $array = json_decode($this->base64url_decode($jwt_splits[1]));
             } 
         }
         return $array;

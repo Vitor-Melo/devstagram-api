@@ -51,10 +51,26 @@ class Users extends Model {
         }
     }
 
+    public function getId(){
+        return $this->id_user;
+    }
+
     public function createJwt(){
         $jwt = new Jwt();
         return $jwt->create(array('id_user' => $this->id_user));
 
+    }
+
+    public function validateJwt($token){
+        $jwt = new Jwt();
+        $info = $jwt->validate($token);
+
+        if(isset($info->id_user)){
+            $this->id_user = $info->id_user;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private function emailExists($email){
