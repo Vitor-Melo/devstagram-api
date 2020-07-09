@@ -3,6 +3,7 @@ namespace Models;
 
 use Core\Model;
 use Models\Jwt;
+use Models\Photos;
 
 class Users extends Model {
 
@@ -53,6 +54,53 @@ class Users extends Model {
 
     public function getId(){
         return $this->id_user;
+    }
+
+    public function getInfo($id){
+        $array = array();
+
+        $sql = "SELECT id, name, email, avatar FROM users WHERE id = :id ";
+        $sql = $this->db->prepare($sql);
+        $sql->bindValue(':id', $id);
+        $sql->execute();
+
+        if($sql->rowCount() > 0){
+            $array = $sql->fetch(\PDO::FETCH_ASSOC);
+
+            $photos = new Photos();
+
+            if(!empty($arry['avatar'])){
+                $array['avatar'] = BASE_URL.'media/avatar/'.$array['avatar'];
+            } else {
+                $array['avatar'] = BASE_URL.'media/avatar/default.jpg';
+            }
+
+            $array['following'] = $this->getFollowingCount($id);
+            $array['followers'] = $this->getFollowersCount($id);
+            $array['photos_count'] = $photos->getPhotosCount($id); 
+        }
+
+        return $array;
+    }
+
+    public function getFollowingCount($id_user){
+        $sql = "SELECT COUNT(*) as c FROM users_following WHERE id_user_active = :id";
+        $sql = $this->db->prepare($sql);
+        $sql->bindValue(':id', $id_user);
+        $sql->execute();
+        $info = $sql->fetch();
+
+        return $info['c'];
+    }
+
+    public function getFollowersCount($id_user){
+        $sql = "SELECT COUNT(*) as c FROM users_following WHERE id_user_passive = :id";
+        $sql = $this->db->prepare($sql);
+        $sql->bindValue(':id', $id_user);
+        $sql->execute();
+        $info = $sql->fetch();
+
+        return $info['c'];
     }
 
     public function createJwt(){
