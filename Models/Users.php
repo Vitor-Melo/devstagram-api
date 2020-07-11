@@ -135,4 +135,58 @@ class Users extends Model {
         }
 
     }
+
+    public function editInfo($id, $data){
+        
+        if ($id === $this->getId()){
+            
+            $toChange = array();
+
+            if(!empty($data['name'])){
+                $toChange['name'] = $data['name'];
+            }
+            
+            if(!empty($data['email'])){
+                if(filter_var($data['email'], FILTER_VALIDATE_EMAIL)){
+                    if (!$this->emailExists($data['email'])){
+                        $toChange['email'] = $data['email'];
+                    } else {
+                        return 'E-mail existente.';
+                    }
+                    
+                } else {
+                        return 'E-mail inválido';
+                    }       
+            }
+            
+            if(!empty($data['pass'])) {
+                $toChange['pass'] = password_hash($data['pass'], PASSWORD_DEFAULT);
+            }
+
+            if(count($toChange) > 0){
+
+                $fields = array();
+                foreach($toChange as $k => $v){
+                    $fields[] = $k.' = :'.$k;
+                }
+                $sql = "UPDATE users SET ".implode(',', $fields)." WHERE id = :id";
+                $sql = $this->db->prepare($sql);
+                $sql->bindValue(':id', $id);
+
+                foreach($toChange as $k => $v){
+                    $sql->bindValue(':'.$k, $v);
+                }
+
+                $sql->execute();
+
+                return '';
+
+            } else {
+                return 'Preencha os dados corretamente!';
+            }
+        
+        } else {
+            return 'Não é permitido editar outro usuário';
+        }
+    }
 }
