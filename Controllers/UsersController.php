@@ -100,6 +100,8 @@ class UsersController extends Controller {
                     $array['data'] = $users->editInfo($id, $data);
                     break;
                 case 'DELETE':
+                    $array['data'] = $users->delete($id);
+
                     break;
                 default:
                     $array['error'] = 'Método '.$method.' não disponível';
