@@ -3,6 +3,7 @@ namespace Controllers;
 
 use \Core\Controller;
 use \Models\users;
+use \Models\Photos;
 
 class UsersController extends Controller {
 
@@ -151,6 +152,49 @@ class UsersController extends Controller {
         }
 
         $this->returnJson($array);
+    }
+
+    public function photos($id_user){
+        $array = array('error' => '', 'logged'=>false);
+
+        $method = $this->getMethod();
+        $data = $this->getRequestData();
+
+        $users = new Users();
+        $p = new Photos();
+
+        if(!empty($data['jwt']) && $users->validateJwt($data['jwt'])){
+            $array['logged'] = true;
+
+            $array['is_me'] = false;
+            if($id_user == $users->getId()){
+                $array['is_me'] = true;
+            }
+
+            if($method == 'GET'){
+
+                $offset = 0;
+                if(!empty($data['offset'])){
+                    $offset = inval($data['offset']);
+                }
+
+                $per_page = 10;
+                if(!empty($data['per_page'])){
+                    $per_page = inval($data['per_page']);
+                }
+
+                $array['data'] = $p->getPhotosFromUser($id_user, $offset, $per_page);
+
+            } else {
+                $data['error'] = 'Método '.$method.' não disponível.';
+            }
+
+        } else {
+            $array['error'] = 'Acesso negado';
+        }
+
+        $this->returnJson($array);
+        
     }
 
 }

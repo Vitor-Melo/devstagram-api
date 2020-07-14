@@ -5,6 +5,28 @@ use \Core\Model;
 
 class Photos extends Model {
 
+    public function getPhotosFromUser($id_user, $offset, $per_page){
+        $array = array();
+
+        $sql = "SELECT * FROM photos WHERE id_user = :id ORDER BY id DESC
+        LIMIT ".$offset.",".$per_page;
+        $sql = $this->db->prepare($sql);
+        $sql->bindValue(':id', $id_user);
+        $sql->execute();
+
+        if($sql->rowCount() > 0){
+            $array = $sql->fetchAll(\PDO::FETCH_ASSOC);
+            foreach($array as $k => $item){
+                $array[$k]['url'] = BASE_URL.'media/photos/'.$item['url'];
+
+                $array[$k]['like_count'] = $this->getLikeCount($item['id']);
+                $array[$k]['comments'] = $this->getComments($item['id']);
+            }
+        }
+
+        return $array;
+    }
+
     public function getFeedColletion($ids, $offset, $per_page){
         $array = array();
         $users = new Users();
