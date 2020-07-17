@@ -239,4 +239,40 @@ class Users extends Model {
         }
     }
 
+    public function follow($id_user){
+
+        $sql = "SELECT * FROM user_following WHERE id_user_active = :id_user_active 
+        AND id_user_passive = :id_user_passive";
+        $sql = $this->db->prepare($sql);
+        $sql->bindValue(':id_user_active', $this->getId());
+        $sql->bindValue(':id_user_passive', $id_user);
+        $sql->execute();
+
+        if($sql->rowCount() === 0){
+            
+            $sql = "INSERT INTO user_following (id_user_active, id_user_passive) VALUES 
+            (:id_user_active, :id_user_passive)";
+            $sql = $this->db->prepare($sql);
+            $sql->bindValue(':id_user_active', $this->getId());
+            $sql->bindValue(':id_user_passive', $id_user);
+            $sql->execute();
+
+            return true;
+        } else {
+            
+            return false;
+        }
+
+    }
+
+    public function unfollow($id_user){
+
+        $sql = "INSERT INTO user_following (id_user_active, id_user_passive) 
+        VALUES (:id_user_active, :id_user_passive)";
+        $sql = $this->db->prepare($sql);
+        $sql->bindValue(':id_user_active', $this->getId());
+        $sql->bindValue(':id_user_passive', $id_user);
+        $sql->execute(); 
+    }
+
 }
