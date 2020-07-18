@@ -2,6 +2,7 @@
 namespace Models;
 
 use \Core\Model;
+use \Models\Users;
 
 class Photos extends Model
 {
@@ -14,10 +15,8 @@ class Photos extends Model
         }
 
         if (count($excludes) > 0) {
-        
             $sql = "SELECT * FROM photos WHERE id NOT IN 
             (".implode(',', $excludes).") ORDER BY RAND() LIMIT ".$per_page;
-        
         } else {
             $sql = "SELECT * FROM photos ORDER BY RAND() LIMIT ".$per_page;
         }
@@ -86,6 +85,32 @@ class Photos extends Model
                     $array[$k]['comments'] = $this->getComments($item['id']);
                 }
             }
+        }
+
+        return $array;
+    }
+
+    public function getPhoto($id_photo)
+    {
+        $array = array();
+        $users = new Users();
+
+        $sql = "SELECT * FROM photos WHERE id = :id";
+        $sql = $this->db->prepare($sql);
+        $sql->bindValue(':id', $id_photo);
+        $sql->execute();
+
+        if ($sql->rowCount() > 0) {
+            $array = $sql->fetch(\PDO::FETCH_ASSOC);
+
+            $user_info = $users->getInfo($array['id_user']);
+
+                $array['name'] = $user_info['name'];
+                $array['avatar'] = $user_info['avatar'];
+                $array['url'] = BASE_URL.'media/photos/'.$array['url'];
+
+                $array['like_count'] = $this->getLikeCount($array['id']);
+                $array['comments'] = $this->getComments($array['id']);
         }
 
         return $array;
