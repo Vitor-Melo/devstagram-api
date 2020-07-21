@@ -14,3 +14,5 @@ $routes['/photos/new'] = '/photos/new_record';
 $routes['/photos/{id}'] = '/photos/view/:id';
 $routes['/photos/{id}/comment'] = '/photos/comment/:id';
 $routes['/photos/{id}/like'] = '/photos/like/:id';
+
+$routes['/comments/{id}'] = '/photos/delete_comment/:id';

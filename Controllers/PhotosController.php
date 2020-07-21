@@ -102,10 +102,35 @@ class PhotosController extends Controller {
                     } else {
                         $array['error'] = 'Comentário vazio';
                     }
-                    
                     break;
-                case 'DELETE':
+                default:
+                    $array['error'] = 'Método '.$method.' não disponível';
+                    break;
+            }
 
+        } else {
+            $array['error'] = 'Acesso negado';
+        }
+
+        $this->returnJson($array);
+    }
+
+    public function delete_comment($id){
+
+        $array = array('error' => '', 'logged'=>false);
+
+        $method = $this->getMethod();
+        $data = $this->getRequestData();
+
+        $users = new Users();
+        $p = new Photos();
+
+        if (!empty($data['jwt']) && $users->validateJwt($data['jwt'])) {
+            $array['logged'] = true;
+
+            switch($method){
+                case 'DELETE':
+                    $array['error'] = $p->deleteComment($id, $users->getId()); 
                     break;
                 default:
                     $array['error'] = 'Método '.$method.' não disponível';
