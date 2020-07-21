@@ -246,4 +246,29 @@ class Photos extends Model
         }
     }
 
+    public function like($id_photo, $id_user){
+
+        $sql = "SELECT * FROM photos_likes WHERE id_user = :id_user AND id_photo = :id_photo";
+        $sql = $this->db->prepare($sql);
+        $sql->bindValue(':id_user', $id_user);
+        $sql->bindValue(':id_photo', $id_photo);
+        $sql->execute();
+
+        if($sql->rowCount() == 0){
+
+            $sql = "INSERT INTO photos_likes (id_user, id_photo) VALUES 
+                (:id_user, :id_photo)";
+            $sql = $this->db->prepare($sql);
+            $sql->bindValue(':id_user', $id_user);
+            $sql->bindValue(':id_photo', $id_photo);
+            $sql->execute();
+
+            return '';
+
+        } else {
+            return 'Você já deu like nesta foto.';
+        }
+
+    }
+
 }
